@@ -97,7 +97,7 @@ if [ $? -eq 0 ]; then
     echo "  Models saved to: $CHECKPOINT_DIR/MetricWeightedLoss_CODED/"
 else
     echo ""
-    echo "✗ Training failed!"
+    echo " Training failed!"
     exit 1
 fi
 
@@ -137,7 +137,7 @@ if [ $? -eq 0 ]; then
     echo "  Predictions saved to: $RESULTS_DIR/"
 else
     echo ""
-    echo "✗ Evaluation failed!"
+    echo " Evaluation failed!"
     exit 1
 fi
 
@@ -164,7 +164,7 @@ if [ $? -eq 0 ]; then
     echo "  Visualizations saved to: $VIS_DIR/"
 else
     echo ""
-    echo "✗ Visualization failed!"
+    echo " Visualization failed!"
     exit 1
 fi
 
