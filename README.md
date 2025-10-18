@@ -5,7 +5,7 @@ Project 2 for MCEN 5228 (Advanced Computer Vision)
 
 ### Requirements
 ```bash
-pip install torch torchvision opencv-python numpy natsort
+pip install torch torchvision opencv-python numpy natsort matplotlib
 pip install wandb  # Optional, for experiment tracking
 ```
 
@@ -57,6 +57,57 @@ This will:
 - Save predicted depth maps to `results/{dataset_name}/pred_depth/`
 - Print metrics: L1 error, RMSE, sigma accuracy, and FPS
 
+## Visualization
+
+Generate qualitative visualizations with viridis/plasma colormaps:
+```bash
+python visualize.py --pred_dir ./results --dataset_dir ./datasets --output_dir ./visualizations --colormap viridis
+```
+
+Options for colormaps: `viridis`, `plasma`, `magma`, `inferno`
+
+This creates:
+- Side-by-side comparisons (Ground Truth | Prediction | Error Map)
+- Depth visualizations with 0-6m metric range
+- Metrics overlaid on each comparison (Abs Rel, RMSE, MAE, δ<1.25)
+- Individual comparison images for each sample
+- Summary metrics file for the dataset
+
+**Quick visualization of 10 samples:**
+```bash
+python visualize.py --pred_dir ./results --dataset_dir ./datasets --output_dir ./vis_quick --colormap plasma --num_samples 10
+```
+
+**Comparing Multiple Models:**
+To compare different models, run eval.py with different checkpoints to different output directories, then visualize each:
+```bash
+# Model 1
+python eval.py --checkpoint ./checkpoints/model1/best.pt --output_dir ./results_model1
+python visualize.py --pred_dir ./results_model1 --output_dir ./vis_model1
+
+# Model 2
+python eval.py --checkpoint ./checkpoints/model2/best.pt --output_dir ./results_model2
+python visualize.py --pred_dir ./results_model2 --output_dir ./vis_model2
+```
+
+## Complete Workflow
+
+```bash
+# 1. Train the model
+python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints
+
+# 2. Evaluate on test sets
+python eval.py --checkpoint ./checkpoints/MetricWeightedLossBlenderNYU/best.pt \
+               --dataset_dir ./datasets \
+               --output_dir ./results
+
+# 3. Generate visualizations
+python visualize.py --pred_dir ./results \
+                    --dataset_dir ./datasets \
+                    --output_dir ./visualizations \
+                    --colormap viridis
+```
+
 ## Configuration
 
 Edit `config.py` to modify:
@@ -91,13 +142,16 @@ test_datasets = [
 ## File Structure
 
 ```
-├── config.py      # Configuration and loss functions
-├── data.py        # Dataset loader
-├── model.py       # U-Net architecture
-├── train.py       # Training script
-├── eval.py        # Evaluation script
-├── datasets/      # Your data (create this)
-└── checkpoints/   # Saved models (auto-created)
+├── config.py         # Configuration and loss functions
+├── data.py           # Dataset loader
+├── model.py          # U-Net architecture
+├── train.py          # Training script
+├── eval.py           # Evaluation script
+├── visualize.py      # Visualization and comparison tool
+├── datasets/         # Your data (create this)
+├── checkpoints/      # Saved models (auto-created)
+├── results/          # Evaluation outputs (auto-created)
+└── visualizations/   # Comparison figures (auto-created)
 ```
 
 ## Citation
