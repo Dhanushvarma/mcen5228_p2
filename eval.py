@@ -171,6 +171,7 @@ def main(args):
     print(f"Checkpoint: {args.checkpoint}")
     print(f"Dataset directory: {args.dataset_dir}")
     print(f"Output directory: {args.output_dir}")
+    print(f"Image Type: {args.image_type.upper()}")
     print(f"Device: {device}")
     print("="*60)
     
@@ -244,6 +245,13 @@ if __name__ == "__main__":
                         help="Path to dataset directory")
     parser.add_argument("--output_dir", "-o", type=str, default="evaluation_results",
                         help="Path to save evaluation results")
+    parser.add_argument("--image_type", type=str, default="coded", 
+                        choices=["coded", "rgb", "aif", "pinhole"],
+                        help="Type of input images: 'coded' for coded aperture or 'rgb'/'aif'/'pinhole' for all-in-focus")
     
     args = parser.parse_args()
+    
+    # Set image type in config
+    config.set_image_type(args.image_type)
+    
     main(args)

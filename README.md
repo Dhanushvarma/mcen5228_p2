@@ -9,6 +9,49 @@ pip install torch torchvision opencv-python numpy natsort matplotlib
 pip install wandb  # Optional, for experiment tracking
 ```
 
+### Quick Start with Bash Scripts
+
+The easiest way to run the complete pipeline is using the provided bash scripts:
+
+```bash
+# 1. Setup (make scripts executable)
+chmod +x setup.sh train_eval_aif.sh train_eval_coded.sh compare_models.sh
+./setup.sh
+
+# 2. Train and evaluate All-in-Focus RGB model
+./train_eval_aif.sh
+
+# 3. Train and evaluate Coded Aperture RGB model
+./train_eval_coded.sh
+
+# 4. Compare results from both models
+./compare_models.sh
+```
+
+**Or run everything sequentially:**
+```bash
+./train_eval_aif.sh && ./train_eval_coded.sh && ./compare_models.sh
+```
+
+### What Each Script Does
+
+**train_eval_aif.sh** - All-in-Focus RGB Model (25 pts)
+- Trains on regular RGB images from `rgb/` directories
+- Training datasets: NYUv2 + UMDCodedVO-LivingRoom
+- Testing datasets: UMDCodedVO-Corridor + UMDCodedVO-DiningRoom
+- Generates predictions and visualizations with viridis colormap
+
+**train_eval_coded.sh** - Coded Aperture RGB Model (25 pts)
+- Trains on coded aperture images from `Codedphasecam-27Linear/` directories
+- Training datasets: NYUv2 + UMDCodedVO-LivingRoom
+- Testing datasets: UMDCodedVO-Corridor + UMDCodedVO-DiningRoom
+- Generates predictions and visualizations with plasma colormap
+
+**compare_models.sh** - Model Comparison
+- Compares Abs Rel and RMSE metrics from both models
+- Shows side-by-side results for Corridor and DiningRoom datasets
+- Provides paths to all visualization outputs
+
 ### Dataset Structure
 
 Organize your data as follows:
@@ -30,14 +73,41 @@ datasets/
 
 ## Training
 
-Basic training:
+### Using Bash Scripts (Recommended)
+The bash scripts handle the complete pipeline automatically.
+
+**For All-in-Focus (AiF/Pinhole) RGB images:**
 ```bash
-python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints
+./train_eval_aif.sh
+```
+This trains on regular RGB images from the `rgb/` directories.
+
+**For Coded Aperture RGB images:**
+```bash
+./train_eval_coded.sh
+```
+This trains on coded images from the `Codedphasecam-27Linear/` directories.
+
+Both scripts will:
+1. ✓ Train the model (80 epochs)
+2. ✓ Evaluate on test datasets
+3. ✓ Generate visualizations
+4. ✓ Save metrics and comparisons
+
+### Manual Training
+Basic training with All-in-Focus RGB:
+```bash
+python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints --image_type rgb
+```
+
+Training with Coded Aperture RGB:
+```bash
+python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints --image_type coded
 ```
 
 With Weights & Biases logging:
 ```bash
-python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints --use_wandb --wandb_project your_project_name
+python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints --image_type rgb --use_wandb --wandb_project your_project_name
 ```
 
 Training will save:
@@ -47,14 +117,28 @@ Training will save:
 
 ## Evaluation
 
-Evaluate a trained model:
+### Using Bash Scripts
+Evaluation is included in the training scripts, but you can also run manually:
+
+**Evaluate AiF RGB model:**
 ```bash
-python eval.py --checkpoint ./checkpoints/MetricWeightedLossBlenderNYU/best.pt --dataset_dir ./datasets --output_dir ./results
+python eval.py --checkpoint ./checkpoints/MetricWeightedLoss_RGB/best.pt \
+               --dataset_dir ./datasets \
+               --output_dir ./results_aif \
+               --image_type rgb
+```
+
+**Evaluate Coded RGB model:**
+```bash
+python eval.py --checkpoint ./checkpoints/MetricWeightedLoss_CODED/best.pt \
+               --dataset_dir ./datasets \
+               --output_dir ./results_coded \
+               --image_type coded
 ```
 
 This will:
 - Evaluate on DiningRoom and Corridor test sets
-- Save predicted depth maps to `results/{dataset_name}/pred_depth/`
+- Save predicted depth maps to `results_{type}/{dataset_name}/pred_depth/`
 - Print metrics: L1 error, RMSE, sigma accuracy, and FPS
 
 ## Visualization
@@ -92,20 +176,43 @@ python visualize.py --pred_dir ./results_model2 --output_dir ./vis_model2
 
 ## Complete Workflow
 
+### Automated (Using Bash Scripts)
 ```bash
-# 1. Train the model
-python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints
+# Run complete pipeline for both models
+./train_eval_aif.sh && ./train_eval_coded.sh && ./compare_models.sh
+```
 
-# 2. Evaluate on test sets
-python eval.py --checkpoint ./checkpoints/MetricWeightedLossBlenderNYU/best.pt \
+### Manual
+```bash
+# 1. Train AiF RGB model
+python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints --image_type rgb
+
+# 2. Train Coded RGB model  
+python train.py --dataset_dir ./datasets --checkpoint_dir ./checkpoints --image_type coded
+
+# 3. Evaluate AiF model
+python eval.py --checkpoint ./checkpoints/MetricWeightedLoss_RGB/best.pt \
                --dataset_dir ./datasets \
-               --output_dir ./results
+               --output_dir ./results_aif \
+               --image_type rgb
 
-# 3. Generate visualizations
-python visualize.py --pred_dir ./results \
+# 4. Evaluate Coded model
+python eval.py --checkpoint ./checkpoints/MetricWeightedLoss_CODED/best.pt \
+               --dataset_dir ./datasets \
+               --output_dir ./results_coded \
+               --image_type coded
+
+# 5. Visualize AiF results
+python visualize.py --pred_dir ./results_aif \
                     --dataset_dir ./datasets \
-                    --output_dir ./visualizations \
+                    --output_dir ./visualizations_aif \
                     --colormap viridis
+
+# 6. Visualize Coded results
+python visualize.py --pred_dir ./results_coded \
+                    --dataset_dir ./datasets \
+                    --output_dir ./visualizations_coded \
+                    --colormap plasma
 ```
 
 ## Configuration
@@ -142,16 +249,24 @@ test_datasets = [
 ## File Structure
 
 ```
-├── config.py         # Configuration and loss functions
-├── data.py           # Dataset loader
-├── model.py          # U-Net architecture
-├── train.py          # Training script
-├── eval.py           # Evaluation script
-├── visualize.py      # Visualization and comparison tool
-├── datasets/         # Your data (create this)
-├── checkpoints/      # Saved models (auto-created)
-├── results/          # Evaluation outputs (auto-created)
-└── visualizations/   # Comparison figures (auto-created)
+├── config.py                # Configuration and loss functions
+├── data.py                  # Dataset loader
+├── model.py                 # U-Net architecture
+├── train.py                 # Training script
+├── eval.py                  # Evaluation script
+├── visualize.py             # Visualization and comparison tool
+├── train_eval_aif.sh        # Complete pipeline for AiF RGB
+├── train_eval_coded.sh      # Complete pipeline for Coded RGB
+├── compare_models.sh        # Compare both models
+├── setup.sh                 # Setup helper
+├── datasets/                # Your data (create this)
+├── checkpoints/             # Saved models (auto-created)
+│   ├── MetricWeightedLoss_RGB/    # AiF model
+│   └── MetricWeightedLoss_CODED/  # Coded model
+├── results_aif/             # AiF predictions (auto-created)
+├── results_coded/           # Coded predictions (auto-created)
+├── visualizations_aif/      # AiF comparisons (auto-created)
+└── visualizations_coded/    # Coded comparisons (auto-created)
 ```
 
 ## Citation

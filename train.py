@@ -93,10 +93,12 @@ def train(args):
     print(config)
     print("="*60)
     print(f"Device: {device}")
+    print(f"Image Type: {args.image_type.upper()}")
     print("="*60)
     
-    # Create checkpoint directory
-    checkpoint_dir = os.path.join(args.checkpoint_dir, "MetricWeightedLossBlenderNYU")
+    # Create checkpoint directory with image type suffix
+    exp_name = f"MetricWeightedLoss_{args.image_type.upper()}"
+    checkpoint_dir = os.path.join(args.checkpoint_dir, exp_name)
     os.makedirs(checkpoint_dir, exist_ok=True)
     
     # Load training datasets
@@ -141,12 +143,13 @@ def train(args):
         import wandb
         wandb.init(
             project=args.wandb_project,
-            name="MetricWeightedLossBlenderNYU",
+            name=exp_name,
             config={
                 "epochs": config.epochs,
                 "batch_size": config.batch_size,
                 "learning_rate": config.learning_rate,
                 "model": "U_Net",
+                "image_type": args.image_type,
             }
         )
     
@@ -248,10 +251,17 @@ if __name__ == "__main__":
                         help="Path to dataset directory")
     parser.add_argument("--checkpoint_dir", type=str, default="checkpoints",
                         help="Path to save checkpoints")
+    parser.add_argument("--image_type", type=str, default="coded", 
+                        choices=["coded", "rgb", "aif", "pinhole"],
+                        help="Type of input images: 'coded' for coded aperture or 'rgb'/'aif'/'pinhole' for all-in-focus")
     parser.add_argument("--use_wandb", action="store_true",
                         help="Use Weights & Biases for logging")
     parser.add_argument("--wandb_project", type=str, default="codedvo",
                         help="W&B project name")
     
     args = parser.parse_args()
+    
+    # Set image type in config
+    config.set_image_type(args.image_type)
+    
     train(args)

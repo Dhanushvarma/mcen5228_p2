@@ -32,6 +32,7 @@ class Config:
     learning_rate = 1e-4
     
     # Dataset parameters
+    # Can be "Codedphasecam-27Linear" for coded images or "rgb" for AiF/pinhole images
     coded_dir = "Codedphasecam-27Linear"
     image_size = (480, 640)
     
@@ -56,6 +57,21 @@ class Config:
     # Depth range (in meters)
     depth_min = 0.0
     depth_max = 6.0
+    
+    @classmethod
+    def set_image_type(cls, image_type="coded"):
+        """
+        Set the image type to use (coded or rgb).
+        
+        Args:
+            image_type: Either "coded" for coded aperture images or "rgb" for AiF/pinhole images
+        """
+        if image_type.lower() == "coded":
+            cls.coded_dir = "Codedphasecam-27Linear"
+        elif image_type.lower() in ["rgb", "aif", "pinhole"]:
+            cls.coded_dir = "rgb"
+        else:
+            raise ValueError(f"Unknown image type: {image_type}. Use 'coded' or 'rgb'")
     
     @staticmethod
     def compute_loss(ground_truth: torch.Tensor, reconstruction: torch.Tensor):
@@ -134,9 +150,9 @@ class Config:
             f"  epochs={self.epochs}\n"
             f"  batch_size={self.batch_size}\n"
             f"  learning_rate={self.learning_rate}\n"
+            f"  image_dir={self.coded_dir}\n"
             f"  train_datasets=[\n    {train_info}\n  ]\n"
             f"  test_datasets=[\n    {test_info}\n  ]\n"
-            f"  coded_dir={self.coded_dir}\n"
             f")"
         )
 
