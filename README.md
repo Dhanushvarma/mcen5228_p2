@@ -1,4 +1,4 @@
-# mcen5228_p2 (Depth Estimation with Coded Aperture)
+# MCEN5228 Project-2 (Depth Estimation with Coded Aperture)
 Project 2 for MCEN 5228 (Advanced Computer Vision)
 
 ## Setup
