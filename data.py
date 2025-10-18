@@ -35,7 +35,7 @@ class ImageDepthDataset(Dataset):
         dir_path = os.path.join(base, path, codedDir)
         
         # Get list of PNG files in the coded directory
-        ffiles = natsort.natsorted([p for p in os.listdir(dir_path) if p.endswith(".png")])
+        files = natsort.natsorted([p for p in os.listdir(dir_path) if p.endswith(".png")])
         
         # Process each file
         for file in files:
