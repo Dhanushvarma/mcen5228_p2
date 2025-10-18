@@ -93,7 +93,7 @@ eval $TRAIN_CMD
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "✓ Training completed successfully!"
+    echo " Training completed successfully!"
     echo "  Models saved to: $CHECKPOINT_DIR/MetricWeightedLoss_RGB/"
 else
     echo ""
@@ -133,7 +133,7 @@ python eval.py \
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "✓ Evaluation completed successfully!"
+    echo " Evaluation completed successfully!"
     echo "  Predictions saved to: $RESULTS_DIR/"
 else
     echo ""
@@ -160,7 +160,7 @@ python visualize.py \
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "✓ Visualization completed successfully!"
+    echo " Visualization completed successfully!"
     echo "  Visualizations saved to: $VIS_DIR/"
 else
     echo ""

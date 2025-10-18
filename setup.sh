@@ -14,7 +14,7 @@ chmod +x train_eval_aif.sh
 chmod +x train_eval_coded.sh
 chmod +x compare_models.sh
 
-echo "✓ Made scripts executable"
+echo " Made scripts executable"
 echo ""
 echo "=============================================================="
 echo "  Quick Reference Guide"

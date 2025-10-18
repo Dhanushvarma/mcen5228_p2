@@ -89,10 +89,10 @@ This trains on regular RGB images from the `rgb/` directories.
 This trains on coded images from the `Codedphasecam-27Linear/` directories.
 
 Both scripts will:
-1. ✓ Train the model (80 epochs)
-2. ✓ Evaluate on test datasets
-3. ✓ Generate visualizations
-4. ✓ Save metrics and comparisons
+1.  Train the model (80 epochs)
+2.  Evaluate on test datasets
+3.  Generate visualizations
+4.  Save metrics and comparisons
 
 ### Manual Training
 Basic training with All-in-Focus RGB:
