@@ -5,8 +5,8 @@ Project 2 for MCEN 5228 (Advanced Computer Vision)
 
 ### Requirements
 ```bash
-pip install torch torchvision opencv-python numpy natsort matplotlib
-pip install wandb  # Optional, for experiment tracking
+uv pip install torch torchvision opencv-python numpy natsort matplotlib
+uv pip install wandb  # Optional, for experiment tracking
 ```
 
 ### Quick Start with Bash Scripts
