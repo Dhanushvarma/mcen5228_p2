@@ -69,13 +69,16 @@ def evaluate(model, dataloader):
             
             reconstruction = config.post_forward(model(coded))
             
+            # Extract the depth channel
+            pred_depth = reconstruction[:, 0]  # Shape: (B, H, W)
+            
             # Calculate L1 error
-            total_l1 += L1(reconstruction[:, 0], depth_gt).item() * len(batch["Coded"])
+            total_l1 += L1(pred_depth, depth_gt).item() * len(batch["Coded"])
             
             # Calculate L1 error for depth < 3m
             mask = depth_gt < 3
             if torch.any(mask):
-                total_l1_under3 += L1(reconstruction[mask, 0], depth_gt[mask]).item() * len(batch["Coded"])
+                total_l1_under3 += L1(pred_depth[mask], depth_gt[mask]).item() * len(batch["Coded"])
             
             sample_count += len(batch["Coded"])
     
