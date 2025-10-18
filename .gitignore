@@ -209,4 +209,4 @@ __marimo__/
 
 # Project-Specifc
 # dont want to log data (its huge)
-data/  
+datasets/  
