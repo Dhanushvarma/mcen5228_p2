@@ -208,5 +208,8 @@ __marimo__/
 
 
 # Project-Specifc
-# dont want to log data (its huge)
-datasets/  
+# dont want to log data and checkpoints (its huge)
+datasets/
+results_coded/
+visualizations_coded/
+checkpoints/
