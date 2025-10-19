@@ -211,5 +211,7 @@ __marimo__/
 # dont want to log data and checkpoints (its huge)
 datasets/
 results_coded/
+results_aif/
 visualizations_coded/
+visualizations_aif/
 checkpoints/
