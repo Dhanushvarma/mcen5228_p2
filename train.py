@@ -17,7 +17,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def create_datasets(dataset_dir, dataset_configs, cache=True):
+def create_datasets(dataset_dir, dataset_configs, cache=False):
     """
     Create datasets from configuration.
     
@@ -106,7 +106,7 @@ def train(args):
     
     # Load training datasets
     print("\nLoading training datasets...")
-    train_dataset_dict = create_datasets(args.dataset_dir, config.train_datasets, cache=True)
+    train_dataset_dict = create_datasets(args.dataset_dir, config.train_datasets, cache=False)
     
     # Combine training datasets
     train_dataset = ConcatDataset(list(train_dataset_dict.values()))
@@ -123,7 +123,7 @@ def train(args):
     
     # Load test datasets
     print("\nLoading test datasets...")
-    test_dataset_dict = create_datasets(args.dataset_dir, config.test_datasets, cache=True)
+    test_dataset_dict = create_datasets(args.dataset_dir, config.test_datasets, cache=False)
     test_loaders = {
         name: DataLoader(dataset, batch_size=config.batch_size, shuffle=False)
         for name, dataset in test_dataset_dict.items()
@@ -229,12 +229,12 @@ def train(args):
         if avg_test_l1_under3 < best_test_loss:
             best_test_loss = avg_test_l1_under3
             torch.save(model.state_dict(), os.path.join(checkpoint_dir, "best.pt"))
-            print(f"  ✓ Saved best model (L1<3m: {best_test_loss:.4f})")
+            print(f"   Saved best model (L1<3m: {best_test_loss:.4f})")
         
         # Save checkpoint periodically
         if (epoch + 1) % config.save_every == 0:
             torch.save(model.state_dict(), os.path.join(checkpoint_dir, f"epoch_{epoch+1}.pt"))
-            print(f"  ✓ Saved checkpoint at epoch {epoch+1}")
+            print(f"   Saved checkpoint at epoch {epoch+1}")
     
     # Save final model
     torch.save(model.state_dict(), os.path.join(checkpoint_dir, "final.pt"))

@@ -16,6 +16,8 @@ COLORMAPS = {
     'inferno': plt.cm.inferno,
 }
 
+# Set the environment variable for OpenEXR support in OpenCV
+os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 
 def load_depth_map(filepath, is_blender=False, scale_factor=1):
     """
@@ -231,7 +233,7 @@ def visualize_dataset(dataset_name, dataset_dir, pred_dir, output_dir,
     output_path = Path(output_dir) / dataset_name
     output_path.mkdir(parents=True, exist_ok=True)
     
-    # Get list of files
+    # Get list of prediction files
     pred_files = sorted(Path(pred_dir).glob("*.png"))
     
     if num_samples is not None:
@@ -250,12 +252,35 @@ def visualize_dataset(dataset_name, dataset_dir, pred_dir, output_dir,
         # Load prediction
         pred = load_predicted_depth(pred_file, scale_factor=5000)
         
-        # Load ground truth
-        if is_blender:
-            gt_file = gt_depth_dir / pred_file.name.replace('.png', '.exr')
-        else:
-            gt_file = gt_depth_dir / pred_file.name
+        # Extract the index from prediction filename (e.g., 00000.png -> 0)
+        # This handles both 00000.png and 0.png formats
+        pred_idx = int(pred_file.stem)
         
+        # Construct ground truth filename
+        # Try both with and without .exr extension for different naming conventions
+        if is_blender:
+            # Try exact index match first (e.g., 0.exr, 1.exr, 100.exr)
+            gt_file = gt_depth_dir / f"{pred_idx}.exr"
+            if not gt_file.exists():
+                # Try with leading zeros (e.g., 00000.exr)
+                gt_file = gt_depth_dir / f"{pred_idx:05d}.exr"
+        else:
+            # For PNG files, try exact index first
+            gt_file = gt_depth_dir / f"{pred_idx}.png"
+            if not gt_file.exists():
+                # Try with leading zeros
+                gt_file = gt_depth_dir / f"{pred_idx:05d}.png"
+        
+        # Check if file exists
+        if not gt_file.exists():
+            print(f"  Warning: Ground truth not found for {pred_file.name}, trying alternate naming...")
+            # Last resort: try with the same name as prediction
+            gt_file = gt_depth_dir / pred_file.name.replace('.png', '.exr' if is_blender else '.png')
+            if not gt_file.exists():
+                print(f"  Skipping {pred_file.name} - no matching ground truth found")
+                continue
+        
+        # Load ground truth
         gt = load_depth_map(gt_file, is_blender, scale_factor)
         
         # Clip to valid range
@@ -280,6 +305,10 @@ def visualize_dataset(dataset_name, dataset_dir, pred_dir, output_dir,
         # Progress
         if (i + 1) % 10 == 0:
             print(f"  Processed {i+1}/{len(pred_files)} samples")
+    
+    if not all_metrics:
+        print(f"  ERROR: No valid samples found for {dataset_name}")
+        return None
     
     # Compute average metrics
     avg_metrics = {k: np.mean([m[k] for m in all_metrics]) 

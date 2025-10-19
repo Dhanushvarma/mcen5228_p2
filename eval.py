@@ -18,7 +18,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def create_datasets(dataset_dir, dataset_configs, cache=True):
+def create_datasets(dataset_dir, dataset_configs, cache=False):
     """
     Create datasets from configuration.
     
@@ -184,7 +184,7 @@ def main(args):
     
     # Load test datasets
     print("\nLoading test datasets...")
-    test_dataset_dict = create_datasets(args.dataset_dir, config.test_datasets, cache=True)
+    test_dataset_dict = create_datasets(args.dataset_dir, config.test_datasets, cache=False)
     
     for name, dataset in test_dataset_dict.items():
         print(f"  - {name}: {len(dataset)} samples")

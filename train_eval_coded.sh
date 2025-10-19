@@ -133,11 +133,11 @@ python eval.py \
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo " Evaluation completed successfully!"
+    echo "Evaluation completed successfully!"
     echo "  Predictions saved to: $RESULTS_DIR/"
 else
     echo ""
-    echo " Evaluation failed!"
+    echo "Evaluation failed!"
     exit 1
 fi
 
